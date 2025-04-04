@@ -1,0 +1,96 @@
+# Archivos y carpetas específicos de Visual Studio / .NET
+*.swp
+*.*~
+project.lock.json
+.DS_Store
+*.pyc
+nupkg/
+
+# Archivos de Visual Studio
+.vs/
+.vscode/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Binarios de compilación
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+build/
+bld/
+[Bb]in/
+[Oo]bj/
+[Oo]ut/
+msbuild.log
+msbuild.err
+msbuild.wrn
+
+# Visual Studio 2015/2017 cache/options directory
+.vs/
+
+# Visual Studio 2017 auto generated files
+Generated\ Files/
+
+# Herramientas de MSTest
+TestResults/
+[Tt]est[Rr]esult*/
+[Bb]uild[Ll]og.*
+
+# NUNIT
+*.VisualState.xml
+TestResult.xml
+
+# Resultados de cobertura de código
+*.coverage
+*.coveragexml
+coverage/
+
+# Archivos de publicación de aplicaciones web
+**/Properties/PublishProfiles/
+*.pubxml
+*.publishproj
+
+# Paquetes NuGet
+*.nupkg
+# Carpeta de paquetes, excepto build/, que se usa como destino de MSBuild
+**/[Pp]ackages/*
+!**/[Pp]ackages/build/
+
+# Archivos temporales de ReSharper
+_ReSharper*/
+*.[Rr]e[Ss]harper
+*.DotSettings.user
+
+# Carpetas específicas de JetBrains Rider
+.idea/
+*.sln.iml
+
+# Archivos de configuración de aplicación
+appsettings.Development.json
+appsettings.Production.json
+appsettings.Staging.json
+
+# Archivos de registro de la aplicación
+logs/
+*.log
+
+# Archivos temporales y de caché
+[Tt]emp/
+.sass-cache/
+
+# Archivos SQL Server
+*.mdf
+*.ldf
+*.ndf
+
+# Carpetas específicas de VSCode (pero no configuración compartida)
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json 

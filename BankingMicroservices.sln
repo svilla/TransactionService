@@ -1,0 +1,82 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{2EF845D3-FD83-410D-B0FB-4CC65714A7D0}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "TransactionService", "TransactionService", "{EE79C82A-94F6-4B27-A142-0AC03197115C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TransactionService.Domain", "src\TransactionService\Domain\TransactionService.Domain.csproj", "{9C3B1E7D-B3F5-4985-91BE-28DA26BA0FD6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TransactionService.Application", "src\TransactionService\Application\TransactionService.Application.csproj", "{0C5834D0-93C3-48A4-B3E4-8455803097F8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TransactionService.Infrastructure", "src\TransactionService\Infrastructure\TransactionService.Infrastructure.csproj", "{9407B866-8EE1-4CBB-8282-05AB20208999}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TransactionService.Api", "src\TransactionService\Api\TransactionService.Api.csproj", "{0842905C-F3FD-4D45-8F40-733C55E45F8B}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "AntiFraudService", "AntiFraudService", "{1F618230-CC7D-4ABD-BC34-B76BEFF3E01D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AntiFraudService.Domain", "src\AntiFraudService\Domain\AntiFraudService.Domain.csproj", "{73EBB20F-8F17-4B58-9204-3D5E5713BB53}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AntiFraudService.Application", "src\AntiFraudService\Application\AntiFraudService.Application.csproj", "{529785B5-9C6D-4E6B-82E7-5B1665C56A28}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AntiFraudService.Infrastructure", "src\AntiFraudService\Infrastructure\AntiFraudService.Infrastructure.csproj", "{6593CAED-2E4B-4539-B842-E82E4247ACF5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AntiFraudService.Api", "src\AntiFraudService\Api\AntiFraudService.Api.csproj", "{429FFF95-120C-4086-A30F-BE1A41AAECB6}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{9C3B1E7D-B3F5-4985-91BE-28DA26BA0FD6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9C3B1E7D-B3F5-4985-91BE-28DA26BA0FD6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9C3B1E7D-B3F5-4985-91BE-28DA26BA0FD6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9C3B1E7D-B3F5-4985-91BE-28DA26BA0FD6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0C5834D0-93C3-48A4-B3E4-8455803097F8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0C5834D0-93C3-48A4-B3E4-8455803097F8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0C5834D0-93C3-48A4-B3E4-8455803097F8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0C5834D0-93C3-48A4-B3E4-8455803097F8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9407B866-8EE1-4CBB-8282-05AB20208999}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9407B866-8EE1-4CBB-8282-05AB20208999}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9407B866-8EE1-4CBB-8282-05AB20208999}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9407B866-8EE1-4CBB-8282-05AB20208999}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0842905C-F3FD-4D45-8F40-733C55E45F8B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0842905C-F3FD-4D45-8F40-733C55E45F8B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0842905C-F3FD-4D45-8F40-733C55E45F8B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0842905C-F3FD-4D45-8F40-733C55E45F8B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{73EBB20F-8F17-4B58-9204-3D5E5713BB53}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{73EBB20F-8F17-4B58-9204-3D5E5713BB53}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{73EBB20F-8F17-4B58-9204-3D5E5713BB53}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{73EBB20F-8F17-4B58-9204-3D5E5713BB53}.Release|Any CPU.Build.0 = Release|Any CPU
+		{529785B5-9C6D-4E6B-82E7-5B1665C56A28}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{529785B5-9C6D-4E6B-82E7-5B1665C56A28}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{529785B5-9C6D-4E6B-82E7-5B1665C56A28}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{529785B5-9C6D-4E6B-82E7-5B1665C56A28}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6593CAED-2E4B-4539-B842-E82E4247ACF5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6593CAED-2E4B-4539-B842-E82E4247ACF5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6593CAED-2E4B-4539-B842-E82E4247ACF5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6593CAED-2E4B-4539-B842-E82E4247ACF5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{429FFF95-120C-4086-A30F-BE1A41AAECB6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{429FFF95-120C-4086-A30F-BE1A41AAECB6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{429FFF95-120C-4086-A30F-BE1A41AAECB6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{429FFF95-120C-4086-A30F-BE1A41AAECB6}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{EE79C82A-94F6-4B27-A142-0AC03197115C} = {2EF845D3-FD83-410D-B0FB-4CC65714A7D0}
+		{9C3B1E7D-B3F5-4985-91BE-28DA26BA0FD6} = {EE79C82A-94F6-4B27-A142-0AC03197115C}
+		{0C5834D0-93C3-48A4-B3E4-8455803097F8} = {EE79C82A-94F6-4B27-A142-0AC03197115C}
+		{9407B866-8EE1-4CBB-8282-05AB20208999} = {EE79C82A-94F6-4B27-A142-0AC03197115C}
+		{0842905C-F3FD-4D45-8F40-733C55E45F8B} = {EE79C82A-94F6-4B27-A142-0AC03197115C}
+		{1F618230-CC7D-4ABD-BC34-B76BEFF3E01D} = {2EF845D3-FD83-410D-B0FB-4CC65714A7D0}
+		{73EBB20F-8F17-4B58-9204-3D5E5713BB53} = {1F618230-CC7D-4ABD-BC34-B76BEFF3E01D}
+		{529785B5-9C6D-4E6B-82E7-5B1665C56A28} = {1F618230-CC7D-4ABD-BC34-B76BEFF3E01D}
+		{6593CAED-2E4B-4539-B842-E82E4247ACF5} = {1F618230-CC7D-4ABD-BC34-B76BEFF3E01D}
+		{429FFF95-120C-4086-A30F-BE1A41AAECB6} = {1F618230-CC7D-4ABD-BC34-B76BEFF3E01D}
+	EndGlobalSection
+EndGlobal
