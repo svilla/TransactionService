@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk.Worker">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>dotnet-AntiFraudService-b679553c-870f-490c-be26-18c6881e0ca8</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Confluent.Kafka" Version="2.3.0" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Domain\Models\" />
+    <Folder Include="Domain\Ports\Input\" />
+    <Folder Include="Domain\Ports\Output\" />
+    <Folder Include="Application\UseCases\" />
+    <Folder Include="Infrastructure\Adapters\Kafka\" />
+    <Folder Include="API\" />
+  </ItemGroup>
+
+</Project>

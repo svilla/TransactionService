@@ -1,0 +1,4 @@
+namespace AntiFraudService.Domain.Models;
+
+// En .NET 8, record struct es la opción ideal para Value Objects
+public readonly record struct TransactionAmount
