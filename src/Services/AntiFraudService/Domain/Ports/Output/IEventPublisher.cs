@@ -1,6 +1,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using AntiFraudService.Domain.Events;
+using System.Collections.Generic;
 
 namespace AntiFraudService.Domain.Ports.Output;
 
@@ -10,8 +11,8 @@ namespace AntiFraudService.Domain.Ports.Output;
 public interface IEventPublisher
 {
     /// <summary>
-    /// Publica un evento de dominio.
+    /// Publica una colección de eventos de dominio.
     /// </summary>
-    /// <param name="domainEvent">El evento a publicar.</param>
-    Task PublishAsync(DomainEvent domainEvent);
+    /// <param name="domainEvents">Los eventos a publicar.</param>
+    Task PublishAsync(IEnumerable<DomainEvent> domainEvents);
 } 

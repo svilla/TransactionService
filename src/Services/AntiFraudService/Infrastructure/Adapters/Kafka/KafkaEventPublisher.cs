@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Threading;
@@ -31,73 +32,88 @@ public class KafkaEventPublisher : IEventPublisher
         ILogger<KafkaEventPublisher> logger)
     {
         _logger = logger;
-        _topicPrefix = config.Value.TopicPrefix; // Usaremos un prefijo para los topics de salida
+        _topicPrefix = config.Value.TopicPrefix; // We'll use a prefix for output topics
 
         var producerConfig = config.Value.ToConfluentConfig();
         _producer = new ProducerBuilder<string, string>(producerConfig).Build();
     }
 
     /// <inheritdoc/>
-    public async Task PublishAsync(DomainEvent domainEvent)
+    public async Task PublishAsync(IEnumerable<DomainEvent> domainEvents)
     {
-        // Determinar el topic basado en el tipo de evento (simple ejemplo)
-        string topicName = $"{_topicPrefix}-validation-results"; // ej: "anti-fraud-validation-results"
-        if (domainEvent is TransactionValidationResultEvent validationEvent)
+        if (domainEvents == null || !domainEvents.Any())
         {
-            // Podríamos tener topics diferentes para Approved vs Rejected si quisiéramos
-        }
-        else
-        {
-            _logger.LogWarning("Publicando evento de tipo desconocido {EventType} a topic genérico.", domainEvent.GetType().Name);
-            topicName = $"{_topicPrefix}-unknown-events";
+            _logger.LogDebug("No domain events provided to publish.");
+            return;
         }
 
-        try
-        {
-            var messageJson = JsonSerializer.Serialize(domainEvent, domainEvent.GetType());
-            var message = new Message<string, string> 
-            { 
-                // Usamos el ID del evento o el ID de la transacción como clave?
-                // Usar TransactionId asegura que todos los eventos de una transacción vayan a la misma partición.
-                Key = (domainEvent is TransactionValidationResultEvent tev ? tev.TransactionId.ToString() : domainEvent.EventId.ToString()),
-                Value = messageJson 
-            };
+        _logger.LogInformation("Publishing {EventCount} domain event(s)...", domainEvents.Count());
 
-            _logger.LogInformation("Publicando evento {EventId} de tipo {EventType} a topic {TopicName}", domainEvent.EventId, domainEvent.GetType().Name, topicName);
-            var deliveryResult = await _producer.ProduceAsync(topicName, message);
-            _logger.LogDebug("Evento publicado a partición {Partition}, offset {Offset}", deliveryResult.Partition, deliveryResult.Offset);
-        }
-        catch (JsonException ex)
+        foreach (var domainEvent in domainEvents)
         {
-            _logger.LogError(ex, "Error serializando evento {EventId} de tipo {EventType}", domainEvent.EventId, domainEvent.GetType().Name);
-            // Considerar qué hacer aquí (¿lanzar excepción?, ¿intentar de nuevo?, ¿loguear y continuar?)
-            throw; // Re-lanzar por ahora
-        }
-        catch (ProduceException<string, string> ex)
-        {
-            _logger.LogError(ex, "Error publicando evento {EventId} a Kafka: {Reason}", domainEvent.EventId, ex.Error.Reason);
-            // Considerar estrategias de reintento o dead-letter queue
-            throw; // Re-lanzar por ahora
-        }
-        catch (Exception ex)
-        {
-             _logger.LogError(ex, "Error inesperado publicando evento {EventId}", domainEvent.EventId);
-             throw;
-        }
+            // Determine topic based on event type (simple example)
+            string topicName = $"{_topicPrefix}-validation-results"; // e.g., "anti-fraud-validation-results"
+            if (domainEvent is TransactionValidationResultEvent validationEvent)
+            {
+                // We could have logic here to determine topic based on Approved/Rejected if needed
+                // topicName = validationEvent.FinalStatus == Domain.Models.TransactionStatus.Approved ? ... : ... ;
+            }
+            else
+            {
+                _logger.LogWarning("Determining topic for unknown event type {EventType}.", domainEvent.GetType().Name);
+                topicName = DetermineTopicName(domainEvent); // Use helper function if refined
+            }
+
+            try
+            {
+                // Use options to handle circular references if needed, although not expected here
+                var options = new JsonSerializerOptions { ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve };
+                var messageJson = JsonSerializer.Serialize(domainEvent, domainEvent.GetType(), options);
+
+                var message = new Message<string, string>
+                {
+                    // Use TransactionId if it's a result event, otherwise EventId
+                    Key = (domainEvent is TransactionValidationResultEvent tev ? tev.TransactionId.ToString() : domainEvent.EventId.ToString()),
+                    Value = messageJson
+                };
+
+                _logger.LogInformation("Publishing event {EventId} of type {EventType} to topic {TopicName}", domainEvent.EventId, domainEvent.GetType().Name, topicName);
+                // Publish and wait for confirmation for each event
+                var deliveryResult = await _producer.ProduceAsync(topicName, message);
+                _logger.LogDebug("Event {EventId} published to partition {Partition}, offset {Offset}", domainEvent.EventId, deliveryResult.Partition, deliveryResult.Offset);
+            }
+            catch (JsonException ex)
+            {
+                _logger.LogError(ex, "Error serializing event {EventId} of type {EventType}. Skipping event.", domainEvent.EventId, domainEvent.GetType().Name);
+                // Continue with the next event
+            }
+            catch (ProduceException<string, string> ex)
+            {
+                _logger.LogError(ex, "Error publishing event {EventId} to Kafka: {Reason}. Skipping event.", domainEvent.EventId, ex.Error.Reason);
+                // Continue with the next event
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unexpected error publishing event {EventId}. Skipping event.", domainEvent.EventId);
+                // Continue with the next event
+            }
+        } // End foreach
+
+        _logger.LogInformation("Event publishing completed.");
     }
 
-    private string DetermineTopicName<TEvent>() where TEvent : DomainEvent
+    // Keep the helper function to determine topic names (adapted)
+    private string DetermineTopicName(DomainEvent domainEvent)
     {
-        // Get the event type name without the "Event" suffix if it exists
-        string eventTypeName = typeof(TEvent).Name;
+        string eventTypeName = domainEvent.GetType().Name;
         if (eventTypeName.EndsWith("Event", StringComparison.OrdinalIgnoreCase))
         {
             eventTypeName = eventTypeName.Substring(0, eventTypeName.Length - 5);
         }
-
-        // Format: prefix.event-name (kebab-case)
         string kebabCaseEventName = ToKebabCase(eventTypeName);
-        return $"{_topicPrefix}.{kebabCaseEventName}";
+        // Decide whether to use a generic or specific topic
+        bool isKnownType = domainEvent is TransactionValidationResultEvent; // Extend if more known types exist
+        return isKnownType ? $"{_topicPrefix}.{kebabCaseEventName}" : $"{_topicPrefix}.unknown-events";
     }
 
     private static string ToKebabCase(string value)
@@ -109,7 +125,4 @@ public class KafkaEventPublisher : IEventPublisher
             value.Select((x, i) => i > 0 && char.IsUpper(x) ? $"-{x}" : x.ToString())
         ).ToLower();
     }
-
-    // Podríamos añadir un método Dispose para el IProducer si es necesario
-    // public void Dispose() => _producer?.Dispose();
-} 
+}
