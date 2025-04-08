@@ -1,3 +1,7 @@
+using System;
+using System.Collections.Generic;
+using AntiFraudService.Domain.Events; // Necesario para DomainEvent y TransactionValidationResultEvent
+
 namespace AntiFraudService.Domain.Models;
 
 public class Transaction
@@ -9,6 +13,16 @@ public class Transaction
     public TransactionAmount Amount { get; private set; }
     public TransactionStatus Status { get; private set; }
     public DateTime CreatedAt { get; private set; }
+
+    private const decimal MAX_ALLOWED_AMOUNT = 2000m;
+
+    private readonly List<DomainEvent> _domainEvents = new();
+    public IReadOnlyCollection<DomainEvent> DomainEvents => _domainEvents.AsReadOnly();
+
+    public void ClearDomainEvents()
+    {
+        _domainEvents.Clear();
+    }
 
     private Transaction(Guid id, Guid sourceAccountId, Guid targetAccountId, int transferTypeId, TransactionAmount amount, TransactionStatus status, DateTime createdAt)
     {
@@ -24,5 +38,14 @@ public class Transaction
     public static Transaction CreatePending(Guid id, Guid sourceAccountId, Guid targetAccountId, int transferTypeId, TransactionAmount amount, DateTime createdAt)
     {
         return new Transaction(id, sourceAccountId, targetAccountId, transferTypeId, amount, TransactionStatus.Pending, createdAt);
+    }
+
+    public void ValidateAmountLimit()
+    {
+        if (Status != TransactionStatus.Rejected && Amount.Value > MAX_ALLOWED_AMOUNT)
+        {
+            Status = TransactionStatus.Rejected;
+            _domainEvents.Add(new TransactionValidationResultEvent(this.Id, this.Status));
+        }
     }
 } 

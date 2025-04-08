@@ -10,12 +10,12 @@ public abstract class DomainEvent
     /// <summary>
     /// Gets the unique identifier for this event instance.
     /// </summary>
-    public Guid EventId { get; }
+    public Guid EventId { get; protected set; }
 
     /// <summary>
     /// Gets the timestamp when this event occurred.
     /// </summary>
-    public DateTime OccurredOn { get; }
+    public DateTime Timestamp { get; protected set; }
 
     /// <summary>
     /// Gets the event type name, used for routing and serialization.
@@ -28,6 +28,6 @@ public abstract class DomainEvent
     protected DomainEvent()
     {
         EventId = Guid.NewGuid();
-        OccurredOn = DateTime.UtcNow;
+        Timestamp = DateTime.UtcNow;
     }
 } 
