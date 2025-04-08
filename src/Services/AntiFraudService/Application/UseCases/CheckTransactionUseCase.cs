@@ -47,17 +47,10 @@ public class CheckTransactionUseCase : ICheckTransactionUseCase
             if (accumulated == null)
             {
                 accumulated = DailyAccumulatedTransaction.CreateNew(transaction.SourceAccountId, transaction.Amount);
-                await _repository.SaveAsync(accumulated);
-                transaction.Approve();
-                _logger.LogInformation("Transaction {TransactionId} approved and new daily accumulated created.", transaction.Id);
-                await _eventPublisher.PublishAsync(transaction.DomainEvents);
-                _logger.LogInformation("Validation result event (Approved) published for transaction {TransactionId}", transaction.Id);
-                return; // Exit method
+            }else{
+                accumulated.AddAmount(transaction.Amount.Value); // Update accumulated amount     
             }
-
-
-
-            accumulated.AddAmount(transaction.Amount.Value); // Update accumulated amount
+            
             transaction.ValidateDailyAccountLimit(accumulated.AccumulatedAmount);
             await _repository.SaveAsync(accumulated);
             _logger.LogInformation("Transaction {TransactionId} approved and new daily accumulated created.", transaction.Id);
