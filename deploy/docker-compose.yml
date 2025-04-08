@@ -19,6 +19,16 @@ services:
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
       KAFKA_BROKER_ID: 1
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
       KAFKA_JMX_PORT: 9991
     ports:
       - 9092:9092
+
+  akhq:
+    image: tchiotludo/akhq:latest
+    volumes:
+      - ./akhq-config.yml:/app/application.yml
+    ports:
+      - "8081:8080" # Accede a la UI de AKHQ en http://localhost:8081
+    depends_on:
+      - kafka

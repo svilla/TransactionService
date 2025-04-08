@@ -1,0 +1,7 @@
+akhq:
+  connections:
+    mycluster:
+      properties:
+        bootstrap.servers: "kafka:29092"
+      # Aquí puedes añadir configuraciones adicionales si las necesitas,
+      # como Schema Registry, etc. 
