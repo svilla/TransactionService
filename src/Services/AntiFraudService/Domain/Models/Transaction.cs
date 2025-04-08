@@ -14,6 +14,8 @@ public class Transaction
     public TransactionStatus Status { get; private set; }
     public DateTime CreatedAt { get; private set; }
 
+    public bool IsRejected => Status == TransactionStatus.Rejected;
+
     private const decimal MAX_ALLOWED_AMOUNT = 2000m;
 
     private readonly List<DomainEvent> _domainEvents = new();
@@ -45,6 +47,7 @@ public class Transaction
         if (Status == TransactionStatus.Pending && Amount.Value > MAX_ALLOWED_AMOUNT)
         {
             Status = TransactionStatus.Rejected;
+            _domainEvents.Add(new TransactionValidationResultEvent(Id, TransactionStatus.Rejected));
         }
     }
 

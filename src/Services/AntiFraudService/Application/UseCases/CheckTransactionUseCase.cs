@@ -28,73 +28,67 @@ public class CheckTransactionUseCase : ICheckTransactionUseCase
 
     public async Task ExecuteAsync(Transaction transaction)
     {
-        _logger.LogInformation("Validando transacción {TransactionId}", transaction.Id);
+        _logger.LogInformation("Validating transaction {TransactionId}", transaction.Id);
 
         try
         {
-            // 1. Validar límite individual
+            // 1. Validate individual limit
             transaction.ValidateAmountLimit();
-            
-            if(transaction.IsRejected) // Modifica estado interno si > 2000
+
+            if (transaction.IsRejected) // Updates internal state if > 2000
             {
-                _logger.LogWarning("Transacción {TransactionId} rechazada por exceder límite individual.", transaction.Id);
-                var resultEvent = new TransactionValidationResultEvent(transaction.Id, TransactionStatus.Rejected);
-                await _eventPublisher.PublishAsync(resultEvent);
-                _logger.LogInformation("Evento de resultado de validación (Rechazado por Límite Individual) publicado para transacción {TransactionId}", resultEvent.TransactionId);
-                return; // Salir del método
-            }
-            // ** Salida temprana si ya fue rechazada por límite individual **
-            if (transaction.Status == TransactionStatus.Rejected)
-            {
-                _logger.LogWarning("Transacción {TransactionId} rechazada por exceder límite individual.", transaction.Id);
-                var resultEvent = new TransactionValidationResultEvent(transaction.Id, TransactionStatus.Rejected);
-                await _eventPublisher.PublishAsync(resultEvent);
-                _logger.LogInformation("Evento de resultado de validación (Rechazado por Límite Individual) publicado para transacción {TransactionId}", resultEvent.TransactionId);
-                return; // Salir del método
+                _logger.LogWarning("Transaction {TransactionId} rejected for exceeding individual limit.", transaction.Id);
+
+                await _eventPublisher.PublishAsync(transaction.DomainEvents);
+                _logger.LogInformation("Validation result event (Rejected for Individual Limit) published for transaction {TransactionId}", transaction.Id);
+                return; // Exit method
             }
 
-            // Si llegamos aquí, la transacción pasó el límite individual.
+            //// If we reach here, the transaction passed the individual limit.
 
-            // 2. Validar límite acumulado diario
-            DateOnly today = DateOnly.FromDateTime(DateTime.UtcNow);
-            var accumulated = await _repository.GetByAccountAndDateAsync(transaction.SourceAccountId, today);
-            decimal currentAccumulatedAmount = accumulated?.AccumulatedAmount ?? 0m;
-            decimal potentialNewAmount = currentAccumulatedAmount + transaction.Amount.Value;
+            // 2. Validate daily accumulated limit
 
-            if (potentialNewAmount > DAILY_ACCOUNT_LIMIT)
-            {
-                transaction.Reject(); // Marcamos como rechazada por límite diario
-                _logger.LogWarning("Transacción {TransactionId} rechazada por exceder límite diario acumulado (Potencial: {PotentialAmount}, Límite: {Limit}).",
-                    transaction.Id, potentialNewAmount, DAILY_ACCOUNT_LIMIT);
-            }
-            else
-            {
-                // Si no excede límite diario, aprobar y actualizar acumulado
-                transaction.Approve(); // Marcamos como aprobada
-                _logger.LogInformation("Transacción {TransactionId} aprobada.", transaction.Id);
 
-                if (accumulated == null)
-                {
-                    accumulated = DailyAccumulatedTransaction.CreateNew(transaction.SourceAccountId, today, transaction.Amount.Value);
-                }
-                else
-                {
-                    accumulated.AddAmount(transaction.Amount.Value);
-                }
-                await _repository.SaveAsync(accumulated);
-                _logger.LogInformation("Acumulado diario para cuenta {AccountId} actualizado a {NewAmount}", accumulated.AccountId, accumulated.AccumulatedAmount);
-            }
 
-            // Publicación del Evento Final (Approved o Rejected por límite diario)
-            var finalEvent = new TransactionValidationResultEvent(transaction.Id, transaction.Status);
-            await _eventPublisher.PublishAsync(finalEvent);
-            _logger.LogInformation("Evento de resultado de validación publicado para transacción {TransactionId} con estado {FinalStatus}", finalEvent.TransactionId, finalEvent.FinalStatus);
+            //DateOnly today = DateOnly.FromDateTime(DateTime.UtcNow);
+            //var accumulated = await _repository.GetByAccountAndDateAsync(transaction.SourceAccountId, today);
+            //decimal currentAccumulatedAmount = accumulated?.AccumulatedAmount ?? 0m;
+            //decimal potentialNewAmount = currentAccumulatedAmount + transaction.Amount.Value;
+
+            //if (potentialNewAmount > DAILY_ACCOUNT_LIMIT)
+            //{
+            //    transaction.Reject(); // Mark as rejected for daily limit
+            //    _logger.LogWarning("Transaction {TransactionId} rejected for exceeding daily accumulated limit (Potential: {PotentialAmount}, Limit: {Limit}).",
+            //        transaction.Id, potentialNewAmount, DAILY_ACCOUNT_LIMIT);
+            //}
+            //else
+            //{
+            //    // If it does not exceed the daily limit, approve and update accumulated
+            //    transaction.Approve(); // Mark as approved
+            //    _logger.LogInformation("Transaction {TransactionId} approved.", transaction.Id);
+
+            //    if (accumulated == null)
+            //    {
+            //        accumulated = DailyAccumulatedTransaction.CreateNew(transaction.SourceAccountId, today, transaction.Amount.Value);
+            //    }
+            //    else
+            //    {
+            //        accumulated.AddAmount(transaction.Amount.Value);
+            //    }
+            //    await _repository.SaveAsync(accumulated);
+            //    _logger.LogInformation("Daily accumulated for account {AccountId} updated to {NewAmount}", accumulated.AccountId, accumulated.AccumulatedAmount);
+            //}
+
+            //// Publish Final Event (Approved or Rejected for daily limit)
+            //var finalEvent = new TransactionValidationResultEvent(transaction.Id, transaction.Status);
+            //await _eventPublisher.PublishAsync(finalEvent);
+            //_logger.LogInformation("Validation result event published for transaction {TransactionId} with status {FinalStatus}", finalEvent.TransactionId, finalEvent.FinalStatus);
 
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error inesperado durante la validación de la transacción {TransactionId}", transaction.Id);
-            // Considerar publicar un evento de fallo o re-lanzar
+            _logger.LogError(ex, "Unexpected error during transaction validation {TransactionId}", transaction.Id);
+            // Consider publishing a failure event or re-throwing
         }
     }
 } 
