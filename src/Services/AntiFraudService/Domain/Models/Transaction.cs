@@ -1,7 +1,4 @@
-using AntiFraudService.Domain.Events; // Necesario para DomainEvent y TransactionValidationResultEvent
-using System;
-using System.Collections.Generic;
-using System.Transactions;
+using AntiFraudService.Domain.Events;
 
 namespace AntiFraudService.Domain.Models;
 
@@ -62,7 +59,7 @@ public class Transaction
         }
     }
 
-    public void Reject()
+    private void Reject()
     {
         if (Status != TransactionStatus.Rejected)
         {
