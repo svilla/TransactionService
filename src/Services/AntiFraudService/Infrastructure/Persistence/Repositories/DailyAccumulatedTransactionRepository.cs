@@ -22,6 +22,14 @@ public class DailyAccumulatedTransactionRepository : IDailyAccumulatedTransactio
                              .FindAsync(accountId, date);
     }
 
+    public async Task<DailyAccumulatedTransaction?> GetForAccountTodayAsync(Guid accountId)
+    {
+        DateOnly today = DateOnly.FromDateTime(DateTime.UtcNow);
+        // Usamos FindAsync para buscar por clave primaria compuesta (cuenta, fecha_hoy)
+        return await _context.DailyAccumulatedTransactions
+                             .FindAsync(accountId, today);
+    }
+
     public async Task SaveAsync(DailyAccumulatedTransaction accumulatedTransaction)
     {
         // Intentamos encontrar la entidad existente por su clave primaria

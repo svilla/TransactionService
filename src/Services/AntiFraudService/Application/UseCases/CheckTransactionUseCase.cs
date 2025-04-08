@@ -56,8 +56,7 @@ public class CheckTransactionUseCase : ICheckTransactionUseCase
             // Si llegamos aquí, la transacción pasó el límite individual.
 
             // 2. Validar límite acumulado diario
-            DateOnly today = DateOnly.FromDateTime(DateTime.UtcNow);
-            var accumulated = await _repository.GetByAccountAndDateAsync(transaction.SourceAccountId, today);
+            var accumulated = await _repository.GetForAccountTodayAsync(transaction.SourceAccountId);
             decimal currentAccumulatedAmount = accumulated?.AccumulatedAmount ?? 0m;
             decimal potentialNewAmount = currentAccumulatedAmount + transaction.Amount.Value;
 
@@ -73,6 +72,8 @@ public class CheckTransactionUseCase : ICheckTransactionUseCase
                 transaction.Approve(); // Marcamos como aprobada
                 _logger.LogInformation("Transacción {TransactionId} aprobada.", transaction.Id);
 
+                // Actualizamos el acumulado. Necesitamos la fecha de hoy aquí.
+                DateOnly today = DateOnly.FromDateTime(DateTime.UtcNow);
                 if (accumulated == null)
                 {
                     accumulated = DailyAccumulatedTransaction.CreateNew(transaction.SourceAccountId, today, transaction.Amount.Value);
