@@ -5,17 +5,13 @@ using AntiFraudService.Domain.Events;
 namespace AntiFraudService.Domain.Ports.Output;
 
 /// <summary>
-/// Interface for publishing domain events to a message broker.
+/// Define la operación para publicar eventos de dominio.
 /// </summary>
 public interface IEventPublisher
 {
     /// <summary>
-    /// Publishes a domain event to the message broker.
+    /// Publica un evento de dominio.
     /// </summary>
-    /// <typeparam name="TEvent">The type of the domain event.</typeparam>
-    /// <param name="domainEvent">The domain event to publish.</param>
-    /// <param name="cancellationToken">Cancellation token.</param>
-    /// <returns>A task representing the asynchronous operation.</returns>
-    Task PublishAsync<TEvent>(TEvent domainEvent, CancellationToken cancellationToken = default) 
-        where TEvent : DomainEvent;
+    /// <param name="domainEvent">El evento a publicar.</param>
+    Task PublishAsync(DomainEvent domainEvent);
 } 

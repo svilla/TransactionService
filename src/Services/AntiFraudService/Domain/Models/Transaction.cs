@@ -42,10 +42,25 @@ public class Transaction
 
     public void ValidateAmountLimit()
     {
-        if (Status != TransactionStatus.Rejected && Amount.Value > MAX_ALLOWED_AMOUNT)
+        if (Status == TransactionStatus.Pending && Amount.Value > MAX_ALLOWED_AMOUNT)
         {
             Status = TransactionStatus.Rejected;
-            _domainEvents.Add(new TransactionValidationResultEvent(this.Id, this.Status));
+        }
+    }
+
+    public void Approve()
+    {
+        if (Status == TransactionStatus.Pending)
+        {
+            Status = TransactionStatus.Approved;
+        }
+    }
+
+    public void Reject()
+    {
+        if (Status != TransactionStatus.Rejected)
+        {
+            Status = TransactionStatus.Rejected;
         }
     }
 } 
