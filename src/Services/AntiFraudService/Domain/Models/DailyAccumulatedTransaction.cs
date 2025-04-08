@@ -20,7 +20,7 @@ public class DailyAccumulatedTransaction
     /// <summary>
     /// Monto total acumulado para la cuenta en la fecha especificada.
     /// </summary>
-    public decimal AccumulatedAmount { get; private set; }
+    public TransactionAmount AccumulatedAmount { get; private set; }
 
     /// <summary>
     /// Constructor privado para EF Core o creación interna.
@@ -35,10 +35,9 @@ public class DailyAccumulatedTransaction
     /// <summary>
     /// Crea una nueva instancia para un día y cuenta.
     /// </summary>
-    public static DailyAccumulatedTransaction CreateNew(Guid accountId, DateOnly date, decimal initialAmount)
+    public static DailyAccumulatedTransaction CreateNew(Guid accountId, TransactionAmount initialAmount)
     {
-        // Podríamos validar que initialAmount no sea negativo
-        return new DailyAccumulatedTransaction(accountId, date, initialAmount);
+        return new DailyAccumulatedTransaction(accountId, DateOnly.FromDateTime(DateTime.UtcNow), initialAmount);
     }
 
     /// <summary>

@@ -1,6 +1,7 @@
+using AntiFraudService.Domain.Events; // Necesario para DomainEvent y TransactionValidationResultEvent
 using System;
 using System.Collections.Generic;
-using AntiFraudService.Domain.Events; // Necesario para DomainEvent y TransactionValidationResultEvent
+using System.Transactions;
 
 namespace AntiFraudService.Domain.Models;
 
@@ -17,6 +18,8 @@ public class Transaction
     public bool IsRejected => Status == TransactionStatus.Rejected;
 
     private const decimal MAX_ALLOWED_AMOUNT = 2000m;
+
+    private const decimal DAILY_ACCOUNT_LIMIT = 20000m;
 
     private readonly List<DomainEvent> _domainEvents = new();
     public IReadOnlyCollection<DomainEvent> DomainEvents => _domainEvents.AsReadOnly();
@@ -46,8 +49,7 @@ public class Transaction
     {
         if (Status == TransactionStatus.Pending && Amount.Value > MAX_ALLOWED_AMOUNT)
         {
-            Status = TransactionStatus.Rejected;
-            _domainEvents.Add(new TransactionValidationResultEvent(Id, TransactionStatus.Rejected));
+            Reject();
         }
     }
 
@@ -56,6 +58,7 @@ public class Transaction
         if (Status == TransactionStatus.Pending)
         {
             Status = TransactionStatus.Approved;
+            _domainEvents.Add(new TransactionValidationResultEvent(Id, TransactionStatus.Approved));
         }
     }
 
@@ -64,6 +67,19 @@ public class Transaction
         if (Status != TransactionStatus.Rejected)
         {
             Status = TransactionStatus.Rejected;
+            _domainEvents.Add(new TransactionValidationResultEvent(Id, TransactionStatus.Rejected));
+        }
+    }
+
+    public void ValidateDailyAccountLimit(TransactionAmount accumulatedAmount)
+    {
+        if (accumulatedAmount > DAILY_ACCOUNT_LIMIT)
+        {
+            Reject();
+        }
+        else
+        {
+            Approve();
         }
     }
 } 
