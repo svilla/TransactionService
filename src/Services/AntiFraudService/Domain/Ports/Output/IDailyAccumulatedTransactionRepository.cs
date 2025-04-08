@@ -10,12 +10,11 @@ namespace AntiFraudService.Domain.Ports.Output;
 public interface IDailyAccumulatedTransactionRepository
 {
     /// <summary>
-    /// Obtiene el registro acumulado para una cuenta en una fecha específica.
+    /// Obtiene el registro acumulado para una cuenta en la fecha actual (hoy).
     /// </summary>
     /// <param name="accountId">El ID de la cuenta.</param>
-    /// <param name="date">La fecha.</param>
-    /// <returns>El registro acumulado o null si no existe.</returns>
-    Task<DailyAccumulatedTransaction?> GetByAccountAndDateAsync(Guid accountId, DateOnly date);
+    /// <returns>El registro acumulado de hoy o null si no existe.</returns>
+    Task<DailyAccumulatedTransaction?> GetForAccountTodayAsync(Guid accountId);
 
     /// <summary>
     /// Guarda (añade o actualiza) un registro de transacción acumulada.
