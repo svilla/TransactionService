@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "AntiFraudService.Api": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "applicationUrl": "https://localhost:51282;http://localhost:51283"
+    }
+  }
+}

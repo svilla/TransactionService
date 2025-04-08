@@ -1,7 +1,3 @@
-using System;
-using System.Text.Json;
-using System.Threading;
-using System.Threading.Tasks;
 using AntiFraudService.Domain.Ports.Input;
 using AntiFraudService.Infrastructure.Adapters.Kafka.Config;
 using AntiFraudService.Infrastructure.Adapters.Kafka.DTOs;
@@ -9,10 +5,11 @@ using Confluent.Kafka;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using System.Text.Json;
 
 namespace AntiFraudService.Infrastructure.Adapters.Kafka;
 
-public class KafkaConsumer : BackgroundService, IConsumer<TransactionCreated>, IDisposable
+public class KafkaConsumer : BackgroundService
 {
     private readonly ICheckTransactionUseCase _checkTransactionUseCase;
     private readonly IConsumer<string, string> _consumer;
@@ -28,7 +25,7 @@ public class KafkaConsumer : BackgroundService, IConsumer<TransactionCreated>, I
         _logger = logger;
         _topicName = config.Value.TopicName;
         _checkTransactionUseCase = checkTransactionUseCase;
-        
+
         var consumerConfig = config.Value.ToConfluentConfig();
         _consumer = new ConsumerBuilder<string, string>(consumerConfig).Build();
     }
@@ -44,7 +41,7 @@ public class KafkaConsumer : BackgroundService, IConsumer<TransactionCreated>, I
     public async Task ConsumeAsync(CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Starting consumption from topic {TopicName}", _topicName);
-        
+
         _consumer.Subscribe(_topicName);
         _isCancelled = false;
 
@@ -55,15 +52,15 @@ public class KafkaConsumer : BackgroundService, IConsumer<TransactionCreated>, I
                 try
                 {
                     var consumeResult = _consumer.Consume(cancellationToken);
-                    
+
                     if (consumeResult != null)
                     {
                         _logger.LogDebug("Message received: {Message}", consumeResult.Message.Value);
-                        
+
                         try
                         {
                             var transactionCreated = JsonSerializer.Deserialize<TransactionCreated>(consumeResult.Message.Value);
-                            
+
                             if (transactionCreated != null)
                             {
                                 await _checkTransactionUseCase.ExecuteAsync(transactionCreated.ToTransaction());
