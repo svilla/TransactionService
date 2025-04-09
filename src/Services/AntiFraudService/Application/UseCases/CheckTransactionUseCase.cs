@@ -27,28 +27,26 @@ public class CheckTransactionUseCase : ICheckTransactionUseCase
 
         try
         {
-            // 1. Validate individual limit
             transaction.ValidateAmountLimit();
 
-            if (transaction.IsRejected) // Updates internal state if > 2000
+            if (transaction.IsRejected) 
             {
                 _logger.LogWarning("Transaction {TransactionId} rejected for exceeding individual limit.", transaction.Id);
 
                 await _eventPublisher.PublishAsync(transaction.DomainEvents);
                 _logger.LogInformation("Validation result event (Rejected for Individual Limit) published for transaction {TransactionId}", transaction.Id);
-                return; // Exit method
+                return; 
             }
 
-            //// If we reach here, the transaction passed the individual limit.
-
-            // 2. Validate daily accumulated limit
             var accumulated = await _repository.GetForAccountTodayAsync(transaction.SourceAccountId);
 
             if (accumulated == null)
             {
                 accumulated = DailyAccumulatedTransaction.CreateNew(transaction.SourceAccountId, transaction.Amount);
-            }else{
-                accumulated.AddAmount(transaction.Amount.Value); // Update accumulated amount     
+            }
+            else
+            {
+                accumulated.AddAmount(transaction.Amount); // Update accumulated amount
             }
             
             transaction.ValidateDailyAccountLimit(accumulated.AccumulatedAmount);
@@ -61,7 +59,6 @@ public class CheckTransactionUseCase : ICheckTransactionUseCase
         catch (Exception ex)
         {
             _logger.LogError(ex, "Unexpected error during transaction validation {TransactionId}", transaction.Id);
-            // Consider publishing a failure event or re-throwing
         }
     }
 } 
