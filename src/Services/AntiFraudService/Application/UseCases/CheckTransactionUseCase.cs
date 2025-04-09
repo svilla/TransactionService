@@ -46,7 +46,7 @@ public class CheckTransactionUseCase : ICheckTransactionUseCase
             }
             else
             {
-                accumulated.AddAmount(transaction.Amount); // Update accumulated amount
+                accumulated.AddAmount(transaction.Amount); 
             }
             
             transaction.ValidateDailyAccountLimit(accumulated.AccumulatedAmount);
