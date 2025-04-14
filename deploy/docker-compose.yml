@@ -6,29 +6,63 @@ services:
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
   zookeeper:
     image: confluentinc/cp-zookeeper:5.5.3
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+
   kafka:
     image: confluentinc/cp-enterprise-kafka:5.5.3
-    depends_on: [zookeeper]
-    environment:
-      KAFKA_ZOOKEEPER_CONNECT: "zookeeper:2181"
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
-      KAFKA_BROKER_ID: 1
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
-      KAFKA_JMX_PORT: 9991
+    depends_on:
+      - zookeeper
     ports:
-      - 9092:9092
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
 
   akhq:
     image: tchiotludo/akhq:latest
     volumes:
       - ./akhq-config.yml:/app/application.yml
     ports:
-      - "8081:8080" # Accede a la UI de AKHQ en http://localhost:8081
+      - "8081:8080"
     depends_on:
       - kafka
+    environment:
+      AKHQ_CONFIGURATION: |
+        akhq:
+          connections:
+            docker-kafka-server:
+              properties:
+                bootstrap.servers: "kafka:29092"
+
+  antifraud-service:
+    build:
+      context: ..
+      dockerfile: src/Services/AntiFraudService/API/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__AntiFraudDatabase=Host=postgres;Port=5432;Database=antifraud_db;Username=postgres;Password=postgres;
+      - Kafka__Consumer__BootstrapServers=kafka:29092
+      - Kafka__Producer__BootstrapServers=kafka:29092
+      - Kafka__Consumer__GroupId=antifraud-service
+      - Kafka__Consumer__AutoOffsetReset=Earliest
+    ports:
+      - "8082:80"
+    depends_on:
+      - postgres
+      - kafka
+    restart: on-failure
+
+volumes:
+  postgres_data:
