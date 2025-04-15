@@ -22,8 +22,9 @@ public class AntiFraudDbContext : DbContext
             entity.HasKey(dat => new { dat.AccountId, dat.Date });
 
             // Configurar propiedades
-            entity.Property(dat => dat.AccumulatedAmount)
-                  .HasColumnType("decimal(18, 2)") // Especificar tipo de columna para decimal
+            entity.Property(dat => dat.AccumulatedAmount.Value)
+                  .HasColumnType("decimal(18, 2)")
+                  .HasColumnName("AccumulatedAmount")
                   .IsRequired();
 
             entity.Property(dat => dat.AccountId).IsRequired();
@@ -37,4 +38,4 @@ public class AntiFraudDbContext : DbContext
             entity.ToTable("DailyAccumulatedTransactions");
         });
     }
-} 
+}
